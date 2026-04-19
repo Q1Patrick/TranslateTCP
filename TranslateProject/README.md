@@ -70,14 +70,13 @@ Xây dựng hệ thống dịch văn bản qua giao thức **TCP Socket** theo m
 
 ```
 TranslateProject/
-│
 ├── client/
 │   └── java/
 │       ├── src/
 │       │   ├── Main.java
+│       │   ├── UI.java
 │       │   ├── TcpClient.java
 │       │   └── FileHandler.java
-│       │
 │       └── README.md
 │
 ├── server/
