@@ -1,15 +1,15 @@
-import socket
-import threading 
-import os
-import json
-from deep_translator import GoogleTranslator
+import socket #netwoking
+import threading #handle many clients at the same time
+import os #work with file/folder
+import json #send/received strutured data 
+from deep_translator import GoogleTranslator #translate text
 
 HOST = "0.0.0.0"
 PORT = 9999
 BUFFER_SIZE = 4096
 
-UPLOAD_DIR = "uploads"
-DOWNLOAD_DIR = "downloads"
+UPLOAD_DIR = "uploads" #where original file is saved
+DOWNLOAD_DIR = "downloads" #where translated filed is saved
 
 
 # ================= AI TRANSLATE =================
@@ -20,43 +20,47 @@ LANG_NAMES = {
     "es": "Spanish"
 }
 
-def translate_text(text: str, target_lang: str) -> str:
-    """
-    Dịch text sang ngôn ngữ đích.
-    Tự động cắt đoạn nếu quá 4000 ký tự (giới hạn Google Translate).
-    
-    target_lang: "vi" | "ja" | "en" | "es"
-    """
+def translate_text(text: str, target_lang: str) -> str: # takes text, translate it, return translated text
+
+    #check valid language 
     if target_lang not in LANG_NAMES:
         raise ValueError(f"Ngôn ngữ không hỗ trợ: '{target_lang}'. "
                          f"Chọn trong: {list(LANG_NAMES.keys())}")
 
-    # Cắt thành đoạn 4000 ký tự
+    # split long text : Google API has limit (~5000 chars)
     chunks = [text[i:i+4000] for i in range(0, len(text), 4000)]
 
     translated_chunks = []
     for i, chunk in enumerate(chunks):
         print(f"    Đang dịch đoạn {i+1}/{len(chunks)}...")
+        # Translate each chunks : auto detect language 
         result = GoogleTranslator(source="auto", target=target_lang).translate(chunk)
         translated_chunks.append(result)
-
+        # combine results
     return "\n".join(translated_chunks)
 
 
 # ================= TCP HELPER =================
+# Receive exacly n bytes
 def recv_exact(conn: socket.socket, n: int) -> bytes | None:
     """
     TCP là stream — recv() không đảm bảo trả đủ N byte 1 lần.
     Hàm này loop cho đến khi đủ N byte hoặc client ngắt.
     """
     data = b""
+    #Keep receiving until enough
     while len(data) < n:
+        #receive data
         chunk = conn.recv(min(BUFFER_SIZE, n - len(data)))
+        # if client disconnect
         if not chunk:
-            return None   # client ngắt kết nối
+            return None   
         data += chunk
     return data
 # ================= Đọc đúng N byte từ socket (tránh mất gói) ==================
+# Read 4 bytes -> lenght
+#Convert to int 
+#Read content
 def recv_block(conn: socket.socket) -> bytes | None:
     """
     Đọc 1 block dữ liệu theo giao thức [4-byte length][content].
@@ -76,16 +80,15 @@ def send_block(conn: socket.socket, data: bytes):
     conn.sendall(len(data).to_bytes(4, "big") + data)
 
 # ================= HANDLE CLIENT =================
-def handle_client(conn: socket.socket, addr: tuple):
+def handle_client(conn: socket.socket, addr: tuple):  # tuple ->  example : ("192.0.0.0",54321)
     client_id = f"{addr[0]}:{addr[1]}"
     print(f"\n{'='*50}")
     print(f"[+] Client kết nối: {client_id}")
 
     try:
-        # --------------------------------------------------------
         # BƯỚC 1: Nhận HEADER JSON
         # { "lang": "vi", "filename": "myfile.txt" }
-        # --------------------------------------------------------
+
         header_bytes = recv_block(conn)
         if header_bytes is None:
             print(f"[-] {client_id}: Không nhận được header.")
@@ -98,9 +101,9 @@ def handle_client(conn: socket.socket, addr: tuple):
         print(f"[→] File    : {orig_filename}")
         print(f"[→] Dịch sang: {LANG_NAMES.get(target_lang, target_lang)}")
 
-        # --------------------------------------------------------
+
         # BƯỚC 2: Nhận nội dung file gốc
-        # --------------------------------------------------------
+
         file_bytes = recv_block(conn)
         if file_bytes is None:
             print(f"[-] {client_id}: Không nhận được nội dung file.")
@@ -115,16 +118,13 @@ def handle_client(conn: socket.socket, addr: tuple):
             f.write(original_text)
         print(f"[✓] Lưu file gốc: {upload_path}")
 
-        # --------------------------------------------------------
         # BƯỚC 3: Dịch nội dung
-        # --------------------------------------------------------
+
         print(f"[⟳] Đang dịch...")
         translated_text = translate_text(original_text, target_lang)
         print(f"[✓] Dịch xong: {len(translated_text)} ký tự")
 
-        # --------------------------------------------------------
         # BƯỚC 4: Lưu file đã dịch + gửi về Client
-        # --------------------------------------------------------
         # Đặt tên file output: "report_vi.txt", "report_ja.txt", ...
         base_name = os.path.splitext(orig_filename)[0]   # "report"
         out_filename = f"{base_name}_{target_lang}.txt"  # "report_vi.txt"
