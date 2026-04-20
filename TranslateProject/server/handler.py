@@ -4,6 +4,10 @@ from config import UPLOAD_DIR, DOWNLOAD_DIR, LANG_NAMES
 from translator import translate_text
 from network import recv_block, send_block
 import socket
+
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+
 # ================= HANDLE CLIENT =================
 def handle_client(conn: socket.socket, addr: tuple):  # tuple ->  example : ("192.0.0.0",54321)
     client_id = f"{addr[0]}:{addr[1]}"

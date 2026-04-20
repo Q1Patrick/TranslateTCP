@@ -69,35 +69,30 @@ Xây dựng hệ thống dịch văn bản qua giao thức **TCP Socket** theo m
 ##  Cấu trúc thư mục
 
 ```
-TranslateProject/
-├── client/
-│   └── java/
-│       ├── src/
-│       │   ├── Main.java
-│       │   ├── UI.java
-│       │   ├── TcpClient.java
-│       │   └── FileHandler.java
-│       └── README.md
-│
-├── server/
-│   ├── main.py
-│   ├── handler.py
-│   ├── network.py
-│   ├── translator.py
-│   └── config.py
-│
-├── data/
-│   ├── input/
-│   └── output/
-│
-├── docs/
-│   ├── API.md
-│   ├── ARCHITECTURE.md
-│   └── USER_GUIDE.md
-│
-└── README.md
-```
-
+TranslateServer/
+└── TranslateProject/
+    ├── client/
+    │   └── java/
+    │       ├── TranslationClient.java
+    │       └── README.md
+    │
+    ├── server/
+    │   ├── server.py
+    │   ├── handler.py
+    │   ├── network.py
+    │   ├── translator.py
+    │   └── config.py
+    │
+    ├── data/
+    │   ├── input/
+    │   └── output/
+    │
+    ├── docs/
+    │   ├── API.md
+    │   ├── ARCHITECTURE.md
+    │   └── USER_GUIDE.md
+    │
+    └── README.md
 ---
 
 ##  Yêu cầu cài đặt
@@ -127,17 +122,14 @@ Tải Java tại: https://www.oracle.com/java/technologies/downloads/
 ### Bước 1 — Chạy Server
 
 ```bash
-cd Server
-python main.py
+cd TranslateProject
+cd server
+python server.py
 ```
 
 Output mong đợi:
 ```
-=============================================
-  TCP Translation Server đang chạy
-  Port   : 9999
-  Ctrl+C : Dừng server
-=============================================
+Server chạy tại 0.0.0.0:9999
 ```
 
 ### Bước 2 — Chạy Client
@@ -146,10 +138,10 @@ Mở thư mục `Client/` bằng VSCode → nhấn **F5**
 
 Hoặc chạy bằng terminal:
 ```bash
-cd Client/TranslationClient
+cd TranslateProject
 cd client/java/src
-javac Main.java
-java Main
+javac TranslationClient.java
+java TranslationClient
 ```
 
 ### Bước 3 — Sử dụng
