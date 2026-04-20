@@ -96,18 +96,17 @@ TranslateServer/
 ---
 
 ##  Yêu cầu cài đặt
-
+```
 ### Server (Python)
 | Yêu cầu | Phiên bản |
 |---------|-----------|
 | Python | 3.10+ |
 | deep-translator | 1.11.4+ |
-
 ```
 bash
 pip install -r Server/requirements.txt
-```
 
+```
 ### Client (Java)
 | Yêu cầu   | Phiên bản |
 |-----------|-----------|
@@ -115,7 +114,7 @@ pip install -r Server/requirements.txt
 | OS | Windows / macOS / Linux |
 
 Tải Java tại: https://www.oracle.com/java/technologies/downloads/
-
+```
 ---
 
 ##  Hướng dẫn chạy
