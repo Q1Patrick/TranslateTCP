@@ -105,7 +105,9 @@ Yêu cầu cài đặt
 | deep-translator | 1.11.4+ |
 ```
 bash
-pip install -r Server/requirements.txt
+pip install deep-translator
+macOS
+pip3 install deep-translator
 ```
 ### Client (Java)
 | Yêu cầu   | Phiên bản |
