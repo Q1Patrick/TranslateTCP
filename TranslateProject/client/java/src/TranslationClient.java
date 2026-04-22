@@ -195,18 +195,25 @@ public class TranslationClient extends JFrame {
             // 3. Chờ phản hồi từ Server
             log("<<< [WAIT] Server đang xử lý...");
             
-            // Đọc Header phản hồi từ Server (ví dụ: thông báo thành công/thất bại)
             byte[] headRes = readBlock(in);
-            log("<<< [RECV] Phản hồi: " + new String(headRes));
+            String headerStr = new String(headRes, "UTF-8");
             
-            // Đọc nội dung file đã được dịch từ Server
+            // Lấy tên file thực tế mà Server trả về từ JSON
+            String finalFileName = "translated_result.txt"; 
+            try {
+                // Parse thủ công filename từ JSON: {"filename": "AI_TRANS_abc.docx", ...}
+                finalFileName = headerStr.split("\"filename\"\\s*:\\s*\"")[1].split("\"")[0];
+            } catch (Exception e) {
+                log("[!] Không lấy được tên file từ Server, dùng tên mặc định.");
+            }
+
             byte[] bodyRes = readBlock(in);
             
-            // 4. Tạo file mới để lưu kết quả, tiền tố "AI_TRANS_"
-            File outF = new File(selectedFile.getParent(), "AI_TRANS_" + selectedFile.getName());
-            Files.write(outF.toPath(), bodyRes); // Ghi dữ liệu ra file
+            // 4. Lưu file với tên và định dạng chuẩn từ Server
+            File outF = new File(selectedFile.getParent(), finalFileName);
+            Files.write(outF.toPath(), bodyRes);
             
-            log("[SUCCESS] Đã lưu kết quả tại: " + outF.getName());
+            log("[SUCCESS] Đã lưu file: " + outF.getName());
             
             // Hiển thị thông báo (Popup) thành công cho người dùng
             JLabel successMsg = new JLabel("Dịch thành công!");
