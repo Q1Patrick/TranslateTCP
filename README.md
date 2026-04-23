@@ -78,8 +78,8 @@ TranslateServer/
     │
     ├── server/
     │   └── data/
-    │       ├── input/
-    │       └── output/
+    │   │   ├── input/
+    │   │   └── output/
     │   ├── server.py
     │   ├── handler.py
     │   ├── network.py
